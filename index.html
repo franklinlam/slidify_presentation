@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>A Simple Shiny Application</title>
+  <meta charset="utf-8">
+  <meta name="description" content="A Simple Shiny Application">
+  <meta name="author" content="Franklin">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/github.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>A Simple Shiny Application</h1>
+    <h2>Outlier Effect in Simple Regression Model</h2>
+    <p>Franklin<br/>A Developing Data Product Student</p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Overview</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>This is a simple Shiny application developed for the &#39;Developing Data Product&#39; course</li>
+<li>The application illustrates the effect of outlier 
+outlier on the regression model. </li>
+<li>Users can use the sliders on the left panel to re-position the outlier and increase the number of outliers. </li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="1" style="background:;">
+  <hgroup>
+    <h2>Run the application</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li>Download the server.R and run.R from GitHub: <a href="https://github.com/franklinlam/developing_data_product.git">https://github.com/franklinlam/developing_data_product.git</a>, OR</li>
+<li>Directly run the application on Rstudio: Type &#39;runGitHub(&quot;developing_data_product&quot;, &quot;franklinlam&quot;)&#39; </li>
+</ol>
+
+<p><img align="center" height=400 src="assets/img/application-screen.png" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="2" style="background:;">
+  <hgroup>
+    <h2>ui.R</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>UI R script that runs on the client side:</p>
+
+<pre><code class="r">shinyUI(fluidPage(
+  titlePanel(&quot;Outlier Effect in Simple Regression Model&quot;),
+  sidebarLayout(
+    sidebarPanel(
+    strong(&quot;Outlier&quot;),
+    sliderInput(inputId=&#39;x&#39;, label=&#39;X-coordinate&#39;,value = 5, min = 1, max = 10, step = 0.5,),
+    sliderInput(inputId=&#39;y&#39;, label=&#39;Y-coordinate&#39;,value = 5, min = 1, max = 10, step = 0.5,),
+    sliderInput(inputId=&#39;no&#39;,label=&#39;Numbers&#39;,value = 1, min = 1, max = 5, step = 1,),
+    strong(&quot;How to run the application&quot;),
+    p(&quot;1. Download and install RStudio&quot;),
+    p(&quot;2. Install the &#39;shiny&#39; package on RStudio&quot;),
+    p(&quot;3. Download and save the server.R and ui.R in the current directory of RStudio&quot;),
+    p(&quot;4. Type &#39;runApp()&#39; to run the application&quot;),
+    strong(&quot;Enjoy!&quot;)
+  ),
+  mainPanel(
+    plotOutput(&#39;newRPlot&#39;),
+    p(&quot;Description: This is a simple Shiny application showing the effect of outlier 
+      outlier on the regression model. You can use the sliders to re-position 
+      the outlier and increase the number of outliers.&quot;)
+  )
+  )
+))
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="3" style="background:;">
+  <hgroup>
+    <h2>server.R</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Server R script that runs on the server side:</p>
+
+<pre><code class="r">library(UsingR)
+data(galton)
+
+shinyServer(
+  function(input, output) {
+    output$newRPlot &lt;- renderPlot({
+      pure_data &lt;- data.frame(x=1:10, y=1:10)
+      noise &lt;- data.frame(x=input$x, y=input$y)
+      noise_data &lt;- pure_data
+      for (i in 1:input$no) {noise_data &lt;- rbind(noise_data, noise)}
+      fit &lt;- lm(y~x, data=noise_data)
+      plot(y~x, data=pure_data, main=&quot;Regression Model&quot;)
+      abline(fit, col=&quot;red&quot;, lwd=2)
+      points(noise, col=&quot;blue&quot;, pch=19, cex = 1.1* input$no)
+      text(2, 7, paste(&quot;Intercept = &quot;, round(coef(fit)[1],digits=3)))
+      text(2, 8, paste(&quot;Slope = &quot;, round(coef(fit)[2],digits=3)))
+    })
+
+  }
+)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Overview'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Run the application'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='ui.R'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='server.R'>
+         4
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
